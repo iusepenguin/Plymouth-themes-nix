@@ -1,0 +1,356 @@
+/*********************************************************************************
+ * Theme Name: PAPIRUS-WINGPANEL-MONITOR-BLACK-BGRD-4K                           *
+ * Version: 1.0                                                                  *
+ * Description: This Plymouth theme is an adaptation of the "Wingpanel Monitor"  *
+ *              icon (com.github.plugarut.wingpanel-monitor.svg) from the        *
+ *              “Papirus” icon set.                                              *
+ * Author: DUKE93                                                                *
+ * Date: 19.09.2024                                                              *
+ * License: This program is free software: you can redistribute it and/or modify *
+ * it under the terms of the GNU General Public License as published by          *
+ * the Free Software Foundation, either version 3 of the License, or             *
+ * (at your option) any later version.                                           *
+ *                                                                               *
+ * This program is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of                *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 *
+ * GNU General Public License for more details.                                  *
+ *                                                                               *
+ * You should have received a copy of the GNU General Public License             *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.         *
+ *********************************************************************************/
+/*-------------------------------------------------------------------------------*\
+|                                  BACKGROUND                                     |
+\*-------------------------------------------------------------------------------*/
+Window.SetBackgroundTopColor(0, 0, 0);
+Window.SetBackgroundBottomColor(0, 0, 0);
+/*-------------------------------------------------------------------------------*\
+|                                   MAIN_BOX                                      |
+\*-------------------------------------------------------------------------------*/
+backdrop = Image("FRAME.PNG");
+boot = Sprite(backdrop);
+boot_opacity = 1;
+boot.SetOpacity(boot_opacity);
+boot_x = Window.GetWidth() / 2  -  backdrop.GetWidth() / 2;
+boot_y = Window.GetHeight() / 2  -  backdrop.GetHeight() / 2;
+boot.SetPosition(boot_x, boot_y, 0);
+
+logo = Image("CIRCLE.PNG");
+//logo.x = boot_x + 101;
+//logo.x = boot_x + backdrop.GetWidth() / 2 - logo.GetWidth() / 2;
+logo.x = boot_x + 65;
+logo.y = boot_y + 122;
+logo_sprite = Sprite(logo);
+logo_sprite.SetPosition(logo.x, logo.y, 2);
+
+prog = Image("PROG.PNG");
+//logo.x = boot_x + 101;
+prog.x = boot_x + 44;
+prog.y = boot_y + 474;
+prog_sprite = Sprite(prog);
+prog_sprite.SetPosition(prog.x, prog.y, 2);
+
+LedGreen = Image("LED-GREEN.PNG");
+//ledgreen.x = boot_x + backdrop.GetWidth() / 2 - ledgreen.GetWidth() / 2;
+LedGreen.x = boot_x + 198;
+LedGreen.y = boot_y + 34;
+LedGreen_sprite = Sprite(LedGreen);
+LedGreen_sprite.SetOpacity(1);
+LedGreen_sprite.SetPosition(LedGreen.x, LedGreen.y, 2);
+
+LedRed = Image("LED-RED.PNG");
+LedRed.x = boot_x + 198;
+LedRed.y = boot_y + 34;
+LedRed_sprite = Sprite(LedRed);
+LedRed_sprite.SetOpacity(1);
+LedRed_sprite.SetPosition(LedRed.x, LedRed.y, 2);
+LedRed.opacity_angle = 0;
+/*-------------------------------------------------------------------------------*\
+|                                    SPINNER                                      |   
+\*-------------------------------------------------------------------------------*/
+// Загрузка изображения спиннера
+spinner_image = Image("FAN.PNG");
+spinner_image2 = Image("FAN-SHADOW.PNG");
+
+screen_width = Window.GetWidth();
+screen_height = Window.GetHeight();
+
+// Creating a sprite for the spinner and setting its properties
+spinner_sprite = Sprite(spinner_image);
+spinner_sprite.SetOpacity(1); // Setting full opacity for the spinner
+//spinner_sprite.SetX((screen_width - spinner_image.GetWidth()) / 2); // Centering the spinner horizontally
+//spinner_sprite.SetX(logo.x + logo.GetWidth() / 2 - spinner_image.GetWidth() / 2);
+spinner_sprite.SetX(logo.x + 19);
+//spinner_sprite.SetY((screen_height - spinner_image.GetHeight()) / 2); // Positioning the spinner vertically on the screen
+spinner_sprite.SetY(logo.y + 20);
+spinner_sprite.SetZ(3); // Setting the Z-coordinate (depth) of the sprite
+
+// Creating a sprite for the second spinner and setting its properties
+spinner_sprite2 = Sprite(spinner_image2);
+spinner_sprite2.SetOpacity(1);
+spinner_sprite2.SetX(logo.x + logo.GetWidth() / 2 - spinner_image2.GetWidth() / 2);
+spinner_sprite2.SetY(logo.y + 30); // Change this value to position the second spinner
+spinner_sprite2.SetZ(2);
+
+FanCenter = Image("FAN-CENTER.PNG");
+FanCenter.x = logo.x + 132;
+FanCenter.y = logo.y + 131;
+FanCenter_sprite = Sprite(FanCenter);
+FanCenter_sprite.SetOpacity(1);
+FanCenter_sprite.SetPosition(FanCenter.x, FanCenter.y, 9);
+
+CenterShadow = Image("CENTER-SHADOW.PNG");
+CenterShadow.x = logo.x + 133;
+CenterShadow.y = logo.y + 143;
+CenterShadow_sprite = Sprite(CenterShadow);
+CenterShadow_sprite.SetOpacity(1);
+CenterShadow_sprite.SetPosition(CenterShadow.x, CenterShadow.y, 8);
+
+// Initializing variables for spinner animation control
+time = 0;
+acceleration = 0.0010; // The meaning of acceleration and deceleration of the spinner
+max_speed = 0.20; // Maximum allowable rotation speed
+min_speed = 0.05; // Minimum rotation speed
+current_speed = max_speed; // Initial speed for shutdown and reboot modes
+boot_current_speed = 0; // Initial speed for boot mode
+theta = 0; // Spinner rotation angle
+state = "decelerating"; // Start with deceleration for shutdown and reboot modes
+state_boot = "accelerating"; // Start with acceleration for boot mode
+/*-------------------------------------------------------------------------------*\
+|                               REFRESH CALLBACK                                  |
+\*-------------------------------------------------------------------------------*/
+fun refresh_callback ()
+{
+  if (Plymouth.GetMode() == "shutdown" || Plymouth.GetMode() == "reboot") {
+    time++; // Incrementing the time counter
+
+    // Handling deceleration state
+    if (state == "decelerating") {
+      if (current_speed > min_speed) {
+        current_speed -= acceleration; // Decreasing the rotation speed
+      } else {
+        current_speed = min_speed; // Set to minimum speed
+        state = "min_speed"; // Transition to maintaining minimum speed state
+      }
+    }
+  
+    theta += current_speed; // Changing the rotation angle of the spinner
+  
+    spinner_sprite.SetImage(spinner_image.Rotate(theta)); // Applying rotation to the spinner image
+    spinner_sprite2.SetImage(spinner_image2.Rotate(theta));
+    FanCenter_sprite.SetImage(FanCenter.Rotate(theta));
+  
+    LedRed.opacity_angle += ((2 * 3.14) / 10) * 0.1;  // 0.5 HZ
+    min_opacity = 0;
+    opacity = (Math.Cos(LedRed.opacity_angle) + 1) / 2;
+    opacity *= 1 - min_opacity;
+    opacity += min_opacity;
+    LedRed.x = boot_x + backdrop.GetWidth() / 2 - LedRed.GetWidth() / 2;
+    LedRed.y = boot_y + 30;
+    LedRed_sprite.SetZ(9);
+    LedRed_sprite.SetOpacity(opacity);
+  } else if (Plymouth.GetMode() == "boot") {
+    time++; // Incrementing the time counter
+
+    // Handling acceleration state
+    if (state_boot == "accelerating") {
+      if (boot_current_speed < max_speed) {
+        boot_current_speed += acceleration; // Increasing the rotation speed
+      } else {
+        boot_current_speed = max_speed; // Set to maximum speed
+        state_boot = "max_speed"; // Transition to maintaining maximum speed state
+      }
+    } else if (state_boot == "decelerating") {
+      if (boot_current_speed > 0) {
+        boot_current_speed -= acceleration; // Decreasing the rotation speed
+      } else {
+        boot_current_speed = 0; // Stop rotation
+      }
+    }
+
+    theta += boot_current_speed; // Changing the rotation angle of the spinner
+
+    spinner_sprite.SetImage(spinner_image.Rotate(theta)); // Applying rotation to the spinner image
+    spinner_sprite2.SetImage(spinner_image2.Rotate(theta));
+    FanCenter_sprite.SetImage(FanCenter.Rotate(theta));
+
+    LedRed.opacity_angle += ((2 * 3.14) / 10) * 0.1;  // 0.5 HZ
+    min_opacity = 0;
+    opacity = (Math.Cos(LedRed.opacity_angle) + 1) / 2;
+    opacity *= 1 - min_opacity;
+    opacity += min_opacity;
+    LedRed.x = boot_x + backdrop.GetWidth() / 2 - LedRed.GetWidth() / 2;
+    LedRed.y = boot_y + 30;
+    LedRed_sprite.SetZ(9);
+    LedRed_sprite.SetOpacity(opacity);
+  }
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);
+/*-------------------------------------------------------------------------------*\
+|                                     TEXT                                        |
+\*-------------------------------------------------------------------------------*/
+text.image = Image.Text ("Powered by GNU/Linux",0.8,0.8,0.8,1,"Ubuntu Regular 22");
+text.sprite = Sprite(text.image);
+text.x = Window.GetX() + Window.GetWidth()  / 1 - text.image.GetWidth() / 0.91;
+text.y = Window.GetY() + Window.GetHeight() / 1.01  - text.image.GetHeight() / 1;
+text.sprite.SetPosition(text.x, text.y, 2);
+/*-------------------------------------------------------------------------------*\
+|                                    DIALOGUE                                     |
+\*-------------------------------------------------------------------------------*/
+status = "normal";
+
+fun dialog_setup()
+  {
+    local.box;
+    local.lock;
+    local.entry;
+    local.text;
+    local.bgrd;
+    
+    box.image = Image("PASSWD_BOX.PNG");
+    lock.image = Image("LOCK.PNG");
+    entry.image = Image("PASSWD_ENTRY.PNG");
+    //bgrd.image = Image("PASSWD_BGRD.PNG");
+
+    /*bgrd.sprite = Sprite(bgrd.image);
+    bgrd.x = Window.GetWidth() / 2 - bgrd.image.GetWidth () / 2; // Place in the centre
+    bgrd.y = Window.GetHeight() / 2 - bgrd.image.GetHeight() / 2;
+    bgrd.z = 50; // Place right at the back
+    bgrd.sprite.SetPosition(bgrd.x, bgrd.y, bgrd.z);*/
+    
+    box.sprite = Sprite(box.image);
+    box.x = Window.GetWidth()  / 2 - box.image.GetWidth ()/2;
+    box.y = Window.GetHeight() / 2 - box.image.GetHeight()/2-3;
+    box.z = 1000;
+    box.sprite.SetPosition(box.x, box.y, box.z);
+    
+    lock.sprite = Sprite(lock.image);
+    lock.x = box.x + box.image.GetWidth() / 2 - lock.image.GetWidth() / 2;
+    lock.y = box.y + 80;
+    lock.z = box.z + 1;
+    lock.sprite.SetPosition(lock.x, lock.y, lock.z);
+    
+    entry.sprite = Sprite(entry.image);
+    //entry.x = box.x + box.image.GetWidth() / 2 - entry.image.GetWidth() / 2;
+    //entry.y = box.y + 220; //330
+    //entry.z = box.z + 1;
+    entry.x = lock.x + lock.image.GetWidth() / 2 - entry.image.GetWidth() / 2;
+    entry.y = lock.y + 280; //330
+    entry.z = lock.z + 1;
+    entry.sprite.SetPosition(entry.x, entry.y, entry.z);
+    
+    text_pass.image = Image.Text ("Enter Password",1.0,1.0,1.0,1, "Ubuntu Bold 24");
+    text_pass.sprite = Sprite(text_pass.image);
+    //text.x = box.x + box.image.GetWidth()/2 - (text.image.GetWidth() + entry.image.GetWidth()) / 2; // Booting... X        
+    //text.y = box.y + box.image.GetHeight()/2 - text.image.GetHeight()/2;
+    //text_pass.x = box.x + 120;
+    text_pass.x = lock.x + lock.image.GetWidth() / 2 - text_pass.image.GetWidth() / 2;
+    //text_pass.x = Window.GetWidth() / 2 - text_pass.image.GetWidth() / 2;       
+    text_pass.y = lock.y + 230;
+    text_pass.z = lock.z + 1;
+    text_pass.sprite.SetPosition(text_pass.x, text_pass.y, text_pass.z);
+
+    prompt_sprite = SpriteNew();
+    //prompt_sprite.x = Window.GetWidth()  / 2 - box.image.GetWidth () / 2.9;
+    //prompt_sprite.y = box.y + 1;
+    prompt_sprite.SetPosition(box.x + 118, box.y - 25, box.z); // 32 - 21
+
+    global.dialog.box = box;
+    global.dialog.lock = lock;
+    global.dialog.entry = entry;
+    global.dialog.text = text_pass;
+    global.dialog.bullet_image = Image("BULLET.PNG");
+    global.dialog.prompt_sprite = prompt_sprite;
+    global.dialog.bgrd = bgrd;
+    dialog_opacity (1);
+  }
+    
+fun dialog_opacity(opacity)
+  {
+    dialog.box.sprite.SetOpacity (opacity);
+    dialog.lock.sprite.SetOpacity (opacity);
+    dialog.entry.sprite.SetOpacity (opacity);
+    dialog.text.sprite.SetOpacity (opacity);
+    dialog.prompt_sprite.SetOpacity(opacity);
+    dialog.bgrd.sprite.SetOpacity(opacity);
+    for (index = 0; dialog.bullet[index]; index++)
+      {
+        dialog.bullet[index].sprite.SetOpacity(opacity);
+      }
+  }
+
+fun display_normal_callback ()
+  {
+    global.status = "normal";
+    if (global.dialog)
+      dialog_opacity (0);
+  }
+
+fun display_password_callback (prompt, bullets)
+  {
+    global.status = "password";
+    if (!global.dialog)
+	dialog_setup();
+    else
+	dialog_opacity(1);
+    dialog.prompt_sprite.SetImage(Image.Text(prompt, 0.8,0.8,0.8,1,"Ubuntu Bold 24"));
+    for (index = 0; dialog.bullet[index] || index < bullets; index++)
+      {
+        if (!dialog.bullet[index])
+          {
+            dialog.bullet[index].sprite = Sprite(dialog.bullet_image);
+            dialog.bullet[index].x = dialog.entry.x + index * dialog.bullet_image.GetWidth() / 0.8 - dialog.entry.image.GetHeight() * -0.2; // отступ точки от точки и от поля (modified)
+            dialog.bullet[index].y = dialog.entry.y + dialog.entry.image.GetHeight() / 2 - dialog.bullet_image.GetHeight() / 2 + 0;
+            dialog.bullet[index].z = dialog.entry.z + 1;
+            dialog.bullet[index].sprite.SetPosition(dialog.bullet[index].x, dialog.bullet[index].y, dialog.bullet[index].z);
+          }
+        if (index < bullets)
+          dialog.bullet[index].sprite.SetOpacity(1);
+        else
+          dialog.bullet[index].sprite.SetOpacity(0);
+      }
+  }
+
+fun display_message_callback (prompt)
+  {
+  
+prompt = Image.Text(prompt,0.0,0.0,0.0,1);
+sprite_prompt.SetImage(prompt);
+sprite_prompt.SetPosition(Window.GetX() + (Window.GetWidth() - prompt.GetWidth()) / 2, Window.GetY() + Window.GetHeight() * 0.10, 2);
+  }
+
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetMessageFunction(display_message_callback);
+/*-------------------------------------------------------------------------------*\
+|                                    MESSAGE                                      |
+\*-------------------------------------------------------------------------------*/
+message_sprite = Sprite();
+message_sprite.SetPosition(10,10,10000);
+
+fun message_callback (text)
+{
+	my_image = Image.Text(text,1,1,1,1,"Ubuntu Regular 38");
+	message_sprite.SetImage(my_image);
+	message_sprite.SetX(Window.GetWidth () / 2 - my_image.GetWidth()  / 2);
+	message_sprite.SetY(Window.GetHeight () * 0.82 - my_image.GetHeight() / 2);
+	message.sprite.SetZ(11);
+}
+
+Plymouth.SetMessageFunction(message_callback);
+/*-------------------------------------------------------------------------------*\
+|                                      QUIT                                       |
+\*-------------------------------------------------------------------------------*/
+fun quit_callback ()
+{
+    spinner_sprite.SetOpacity (0);
+    if (Plymouth.GetMode() == "shutdown") {
+        motif.sprite.SetOpacity(0);
+    }
+}
+
+Plymouth.SetQuitFunction(quit_callback);
+/*-------------------------------------------------------------------------------*\
+|                                      END                                        |
+\*-------------------------------------------------------------------------------*/

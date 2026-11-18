@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=AmigaKickstartMenu
+Description=AmigaKickstartMenu Screen Animation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/AmigaKickstartMenu
+ScriptFile=/usr/share/plymouth/themes/AmigaKickstartMenu/AmigaKickstartMenu.script

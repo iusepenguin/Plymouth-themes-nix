@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=AtariLogo
+Description=AtariLogo Screen Animation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/AtariLogo
+ScriptFile=/usr/share/plymouth/themes/AtariLogo/AtariLogo.script

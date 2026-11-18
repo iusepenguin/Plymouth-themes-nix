@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=C64
+Description=C64 Screen Animation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/C64
+ScriptFile=/usr/share/plymouth/themes/C64/C64.script

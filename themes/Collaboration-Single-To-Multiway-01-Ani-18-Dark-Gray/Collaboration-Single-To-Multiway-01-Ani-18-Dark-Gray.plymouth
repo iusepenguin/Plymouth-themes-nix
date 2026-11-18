@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Collaboration Single-To-Multiway 01 Ani-18 Dark Gray theme
+Description=Collaboration Single-To-Multiway 01 Ani-18 Dark Gray plymouth theme
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/Collaboration-Single-To-Multiway-01-Ani-18-Dark-Gray
+ScriptFile=/usr/share/plymouth/themes/Collaboration-Single-To-Multiway-01-Ani-18-Dark-Gray/mdv.script

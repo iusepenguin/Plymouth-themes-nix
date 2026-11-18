@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=BoingBall
+Description=BoingBall Screen Animation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/BoingBall
+ScriptFile=/usr/share/plymouth/themes/BoingBall/BoingBall.script
